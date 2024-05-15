@@ -3,9 +3,12 @@
 #include<unistd.h>
 #include<stdio.h>
 
+//Parcial TUberias
+
 struct data
 {
     char letra;
+    int padre;
 };
 
 
@@ -21,7 +24,7 @@ int main(){
     struct data post;
 
     //creaccion de tuberia
-    int fd[13][2];
+    int fd[14][2];
 
     for (int m = 0; m < 14; m++)
     {
@@ -84,30 +87,36 @@ int main(){
     case 0:
         if(hijos == getppid()){//b
             read(fd[8][0],&post,sizeof(struct data));
-            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
             post.letra='b';
+            post.padre = getppid();
             write(fd[9][1],&post,sizeof(struct data));
 
             read(fd[12][0],&post,sizeof(struct data));
-            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
             post.letra = 'b';
-            write(fd[13][1],&post,sizeof(struct data));           
+            post.padre = getppid();
+            write(fd[13][1],&post,sizeof(struct data));    
+
         }else{
             if(nietos[0] == getppid()){//e
                 read(fd[9][0],&post,sizeof(struct data));
-                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
                 post.letra = 'e';
+                post.padre = getppid();
                 write(fd[10][1],&post,sizeof(struct data));
 
                 read(fd[11][0],&post,sizeof(struct data));
-                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
                 post.letra = 'e';
+                post.padre = getppid();
                 write(fd[12][1],&post,sizeof(struct data));
             }else{
                 if(bisnietos[0] == getppid()){//h
                     read(fd[10][0],&post,sizeof(struct data));
-                    printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+                    printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
                     post.letra = 'h';
+                    post.padre = getppid();
                     write(fd[11][1],&post,sizeof(struct data));
                 }
             }
@@ -117,20 +126,23 @@ int main(){
     case 1:
         if(hijos == getppid()){//c
             read(fd[5][0],&post,sizeof(struct data));
-            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
             post.letra='c';
+            post.padre = getppid();
             write(fd[6][1],&post,sizeof(struct data));
 
             read(fd[7][0],&post,sizeof(struct data));
-            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
         
             post.letra='c';
+            post.padre = getppid();
             write(fd[8][1],&post,sizeof(struct data));
         }
         if(nietos[1] == getppid()){//f
             read(fd[6][0],&post,sizeof(struct data));
-            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
             post.letra='f';
+            post.padre = getppid();
             write(fd[7][1],&post,sizeof(struct data));
         }
         break;
@@ -140,30 +152,35 @@ int main(){
             read(fd[0][0],&post,sizeof(struct data));
             printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
             post.letra = 'd';
+            post.padre = getppid();
             write(fd[1][1],&post,sizeof(struct data));
 
             read(fd[4][0],&post,sizeof(struct data));
-            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+            printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
             post.letra='d';
+            post.padre = getppid();
             write(fd[5][1],&post,sizeof(struct data));
 
         }else{
             if(nietos[2] == getppid()){//g
                 read(fd[1][0],&post,sizeof(struct data));
-                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
                 post.letra = 'g';
+                post.padre = getppid();
                 write(fd[2][1],&post,sizeof(struct data));
 
                 read(fd[3][0],&post,sizeof(struct data));
-                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+                printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
                 post.letra='g';
+                post.padre = getppid();
                 write(fd[4][1],&post,sizeof(struct data));
 
             }else{//i
                 if(bisnietos[2] == getppid()){
                     read(fd[2][0],&post,sizeof(struct data));
-                    printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+                    printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
                     post.letra='i';
+                    post.padre = getppid();
                     write(fd[3][1],&post,sizeof(struct data));
                 }
             }
@@ -172,23 +189,21 @@ int main(){
         break;
     
     default:
+
         post.letra ='a';
+        post.padre = getppid();
         write(fd[0][1],&post,sizeof(struct data));
 
         read(fd[13][0],&post,sizeof(struct data));
-        printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
+        printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),post.padre,post.letra);
 
         post.letra ='a';
+        post.padre = getppid();
         write(fd[14][1],&post,sizeof(struct data));
         break;
     }
 
-    read(fd[14][0],&post,sizeof(struct data));
-    printf("Proceso[%d]  Padre[%d]   Letra[%c]\n",getpid(),getppid(),post.letra);
 
-
-
-    
     
     return EXIT_SUCCESS;
 }
