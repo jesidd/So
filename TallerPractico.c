@@ -68,7 +68,41 @@ void mostrarMatriz(int ***matriz, int *rows, int *cols){
     printf("\n");
 }
 
-void* sumarMatriz(void* param/*int ***matriz,int ***matriz2, int *rows, int *cols+*/){
+void* crearArchivoFinal(void *param){
+
+    Data *datos = (Data*) param;
+    FILE *file = fopen("matrizResultante.txt","w");
+
+    printf("ID Hilo: %lu",pthread_self());
+
+    if(file != NULL){
+        fprintf(file,"Filas: %d",datos->rows);
+        fprintf(file,"\nColumnas: %d",datos->cols);
+        fprintf(file,"\n");
+
+        for (int i = 0; i < datos->rows; i++)
+        {
+            for (int j = 0; j < datos->cols; j++)
+            {
+                fprintf(file,"%d ",matrizSuma[i][j]);
+            }
+            fprintf(file,"\n");
+        }
+        
+
+        fclose(file);
+    }else{
+        printf("error");
+        exit(0);
+    }
+
+    
+    exit(1);
+}
+
+
+
+void* sumarMatriz(void* param/*int ***matriz,int ***matriz2, int *rows, int *cols+*/){ 
 
     Data *datos =(Data*) param; 
 
@@ -84,9 +118,20 @@ void* sumarMatriz(void* param/*int ***matriz,int ***matriz2, int *rows, int *col
                 (matrizSuma)[i][j] = (datos->matriz1)[i][j] + (datos->matriz2)[i][j];
             }
         }
+    }else{
+        exit(0);
     }
 
+    printf("\nID Hilo: %lu",pthread_self());
+    printf("\n");
     mostrarMatriz(&matrizSuma,&datos->rows,&datos->cols);
+
+    pthread_t hilo;
+
+    pthread_create(&hilo,NULL,crearArchivoFinal,(void *)datos);
+    pthread_join(hilo,NULL);
+
+    exit(1);
 }
 
 
@@ -106,13 +151,14 @@ int main(int argc, char* argv[]){
     datos->matriz1 = matriz;
     datos->matriz2 = matriz2;
     
-
+    printf("ID Hilo Principal: %lu",pthread_self());
 
     pthread_t hilo;
     //hilo = malloc(rows * sizeof(pthread));
 
-    pthread_create(hilo,NULL,sumarMatriz,(void *) &datos);
-    printf("hecho");
+    pthread_create(&hilo,NULL,sumarMatriz,(void *) datos);
+
+    pthread_join(hilo,NULL);
 
     return 0;
 }
