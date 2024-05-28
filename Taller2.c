@@ -24,21 +24,14 @@ void crearArchivoFinal(char **vector, int* col){
     FILE *file = fopen("vectorResultante.dat","w");
 
     int tamVector = *col;
-    int salto = 60;
 
     if(file != NULL){
         fprintf(file,"Columnas: %d", tamVector);
-        fprintf(file,"\n");
 
         
         for (int j = 0; j < tamVector; j++)
         {
             fprintf(file,"%c",(*vector)[j]);
-
-            if(j == salto){
-                fprintf(file,"\n");
-                salto+=60;
-            }
         }
     
         
@@ -66,7 +59,7 @@ void leerVector(char **vector,int *tamVector,char *filename){
 
     
     for(int j=0; j<col; j++){
-        fscanf(file," %c",&(*vector)[j]);
+        fscanf(file,"%c",&(*vector)[j]);
     }
 
     fclose(file);
@@ -176,13 +169,10 @@ int main(int argc, char* argv[]){
 
     int delta = tamVector/9;
 
-    printf("delta: %d",delta);
-
     for (int i = 0; i < 9; i++)
     {   
         datos->inicio =(int) (delta) * i;
         datos->final = (int) (delta) * (i+1);
-        printf("Inicio: %d\n final: %d\n ",datos->inicio,datos->final);
         pthread_create(&hilo[i],NULL,contarSecuencia,(void*) datos);
         usleep(1000);
     }
@@ -194,6 +184,7 @@ int main(int argc, char* argv[]){
     
     printf("Numero de secuencias: %d\n",datos->nSecuencia);
     printf("Numero de secuencias: %d\n",secuencias);
+    printf("Tamaño del vector: %d\n",datos->tamVector);
 
     pthread_mutex_destroy(&my);
     pthread_exit(NULL);
