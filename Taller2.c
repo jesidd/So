@@ -109,8 +109,6 @@ void* contarBase(void* param){
     }
     
 }
-int secuencias=0;
-pthread_mutex_t my = PTHREAD_MUTEX_INITIALIZER;
 
 void* contarSecuencia(void* param){
 
@@ -124,17 +122,11 @@ void* contarSecuencia(void* param){
     int i = datos->inicio;
     int fin = datos->final;
 
-    if(fin == 99999){
-        fin = longitud_vec;
-    }
 
     for (i ; i < fin ; i++)
     {    
         if (strncmp(&datos->vector[i], secuencia, longitud_secuencia) == 0) {
             datos->nSecuencia++;
-            pthread_mutex_lock(&my);
-            secuencias++;
-            pthread_mutex_unlock(&my);
         }
     }
 }
@@ -145,7 +137,7 @@ int main(int argc, char* argv[]){
     char *vector;
     int tamVector;
 
-    leerVector(&vector,&tamVector,argv[1]);
+    leerVector(&vector,&tamVector,argv[2]);
     //mostrarVector(&vector,&tamVector);
     crearArchivoFinal(&vector,&tamVector);
 
@@ -154,7 +146,7 @@ int main(int argc, char* argv[]){
     datos->tamVector = tamVector;
     datos->vector = vector;
 
-    int nHilos = 10;   
+    int nHilos = atoi(argv[1]);   
 
     pthread_t hilo[nHilos];
 
@@ -167,26 +159,32 @@ int main(int argc, char* argv[]){
     datos->nSecuencia = 0;
     datos->vector = vector;
 
-    int delta = tamVector/9;
+    int delta = tamVector/nHilos;
 
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < nHilos; i++)
     {   
-        datos->inicio =(int) (delta) * i;
-        datos->final = (int) (delta) * (i+1);
+        if(nHilos % 2 == 0){
+            datos->inicio =(int) (delta) * i;
+            datos->final = (int) (delta) * (i+1);
+        }else{
+            datos->inicio =(int) (delta) * i;
+            datos->final = (int) (delta) * (i+1);
+        }
+
+        if(i == nHilos-1){
+            datos->final = tamVector;
+        }
+       
         pthread_create(&hilo[i],NULL,contarSecuencia,(void*) datos);
-        usleep(1000);
-    }
-    
-    for (int i = 0; i < 9; i++)
-    {
         pthread_join(hilo[i],NULL);
     }
     
+    
     printf("Numero de secuencias: %d\n",datos->nSecuencia);
-    printf("Numero de secuencias: %d\n",secuencias);
     printf("Tamaño del vector: %d\n",datos->tamVector);
 
-    pthread_mutex_destroy(&my);
+    free(datos);
+    free(vector);
     pthread_exit(NULL);
     return EXIT_SUCCESS;
 }
