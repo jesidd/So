@@ -16,8 +16,13 @@ typedef struct {
     int nSecuencia;
     int inicio;
     int final;
+    int index;
+    int *posx;
+    int numProcess;
 }Data;
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+int *matrizp;
 
 void crearArchivoFinal(char **vector, int* col){
 
@@ -59,7 +64,7 @@ void leerVector(char **vector,int *tamVector,char *filename){
 
     
     for(int j=0; j<col; j++){
-        fscanf(file,"%c",&(*vector)[j]);
+        fscanf(file,"%c",&(*vector)[j]); 
     }
 
     fclose(file);
@@ -122,11 +127,16 @@ void* contarSecuencia(void* param){
     int i = datos->inicio;
     int fin = datos->final;
 
-
     for (i ; i < fin ; i++)
     {    
         if (strncmp(&datos->vector[i], secuencia, longitud_secuencia) == 0) {
+            pthread_mutex_lock(&mutex);
+            matrizp[datos->index] = datos->numProcess; 
+            pthread_mutex_unlock(&mutex);
+        
             datos->nSecuencia++;
+            datos->posx[datos->index] = i;
+            datos->index++;
         }
     }
 }
@@ -136,15 +146,21 @@ int main(int argc, char* argv[]){
 
     char *vector;
     int tamVector;
+    int *posx;
 
     leerVector(&vector,&tamVector,argv[2]);
     //mostrarVector(&vector,&tamVector);
     crearArchivoFinal(&vector,&tamVector);
 
     Data *datos = (Data*) malloc(tamVector * sizeof(Data));
+    matrizp = (int*) malloc(tamVector * sizeof(int));
+    
 
     datos->tamVector = tamVector;
     datos->vector = vector;
+    posx =(int*) malloc((tamVector) *sizeof(int));
+    datos->posx = posx;
+    datos->index = 0;
 
     int nHilos = atoi(argv[1]);   
 
@@ -174,11 +190,16 @@ int main(int argc, char* argv[]){
         if(i == nHilos-1){
             datos->final = tamVector;
         }
+
+        datos->numProcess = i;
        
         pthread_create(&hilo[i],NULL,contarSecuencia,(void*) datos);
         pthread_join(hilo[i],NULL);
     }
     
+    for(int i = 0; i < datos->index; i++){
+        printf("Proceso [%d] Secuencia en la posicion [%d]\n",matrizp[i],datos->posx[i]);
+    }
     
     printf("Numero de secuencias: %d\n",datos->nSecuencia);
     printf("Tamaño del vector: %d\n",datos->tamVector);
