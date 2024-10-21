@@ -1,0 +1,63 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/shm.h>
+#include<sys/ipc.h>
+#include <unistd.h>
+
+
+unsigned int sizeof_dm (int rows, int cols, size_t sizeElemnt){
+    size_t size;
+    size = rows*sizeof(void*);
+    size += (cols*rows*sizeElemnt);
+    return size;
+}
+
+void create_index (void **m, int rows, int cols, size_t sizeElement){
+    int i;
+    size_t sizeRow = cols*sizeElement;
+    m[0] = m + rows;
+    for ( i = 1; i < rows; i++)
+    {
+        m[i] = (m[i-1] + sizeRow);
+    }
+    
+}
+
+
+int main(){
+
+    int **matrix = NULL;
+    int Rows = 0, Cols = 0;
+    size_t sizeMatrix = sizeof_dm(3, 3, sizeof(int));
+    int shmId = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600);
+    matrix = shmat(shmId, NULL, 0);
+    create_index((void*)matrix, 3, 3, sizeof(int));
+
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            matrix[i][j] = (i*3) + j;
+        }
+        
+    }
+
+    if(!fork()){
+
+        
+    }else{
+        return 0;
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            printf("%d",matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    return EXIT_SUCCESS;
+}
