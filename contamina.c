@@ -43,6 +43,8 @@ void leerMatriz(int ***matriz, int *tamRow, int *tamCol, char *filename) {
 
 bool esNido(int ***matriz,int iR,int fR,int iC,int fC,int y , int x){
 
+    if( matriz[y][x] != 1) return false;
+
     for (int i = y-1; i < y+1; i++)
     {
         for (int j = x-1; j < x+1; j++)
